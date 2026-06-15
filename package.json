@@ -1,0 +1,13 @@
+{
+  "name": "instagram-profile",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Responsive Instagram UI (3 screens) built with pure HTML & CSS.",
+  "scripts": {
+    "dev": "serve -l 3000 .",
+    "start": "serve -l 3000 ."
+  },
+  "devDependencies": {
+    "serve": "^14.2.4"
+  }
+}

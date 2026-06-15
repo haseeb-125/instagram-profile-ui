@@ -1,0 +1,356 @@
+/* ===========================================================
+   Instagram-Profile — Responsive UI (pure HTML + CSS)
+   Layout: Flexbox + CSS Grid
+   - Mobile  (< 768px): top bar + bottom nav, full-width content
+   - Tablet  (>= 768px): icon-only left sidebar
+   - Desktop (>= 1264px): labeled left sidebar + wider content
+   =========================================================== */
+
+/* ----------  Design tokens  ---------- */
+:root {
+  --bg-page: #fafafa;
+  --bg-surface: #ffffff;
+  --text-primary: #121212;
+  --text-secondary: #737373;
+  --border: #dbdbdb;
+  --accent: #ec4899;          /* instagram pink */
+  --accent-deep: #c026d3;
+  --danger: #ed4956;
+  --link: #1877f2;
+
+  /* gradient placeholders */
+  --grad-1: linear-gradient(135deg, #f9d29d 0%, #ec4899 100%);
+  --grad-2: linear-gradient(135deg, #f472b6 0%, #c026d3 100%);
+  --grad-3: linear-gradient(135deg, #fbcfe8 0%, #db2777 100%);
+  --grad-4: linear-gradient(135deg, #f9a8d4 0%, #a855f7 100%);
+  --grad-5: linear-gradient(160deg, #fcd5b5 0%, #f472b6 55%, #c026d3 100%);
+
+  --radius: 10px;
+  --sidebar-w: 244px;
+  --sidebar-w-icon: 76px;
+
+  --font: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* ----------  Reset  ---------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { background: var(--bg-page); }
+
+body {
+  font-family: var(--font);
+  color: var(--text-primary);
+  background: var(--bg-page);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+img { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+ul { list-style: none; }
+button { font-family: inherit; cursor: pointer; background: none; border: none; color: inherit; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+/* ----------  Gradient + avatar helpers  ---------- */
+.g1 { background: var(--grad-1); }
+.g2 { background: var(--grad-2); }
+.g3 { background: var(--grad-3); }
+.g4 { background: var(--grad-4); }
+.g5 { background: var(--grad-5); }
+
+.avatar { border-radius: 50%; flex-shrink: 0; background: var(--grad-1); }
+.avatar--ring { padding: 2px; background: linear-gradient(45deg, #f9ce34, #ee2a7b, #6228d7); border-radius: 50%; }
+.avatar--ring > .avatar { border: 2px solid var(--bg-surface); }
+
+/* ===========================================================
+   APP SHELL
+   =========================================================== */
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ===========================================================
+   SIDEBAR (desktop / tablet)  — hidden on mobile
+   =========================================================== */
+.sidebar { display: none; }
+
+.sidebar__brand {
+  font-family: "Brush Script MT", "Segoe Script", cursive;
+  font-size: 1.7rem;
+  padding: 25px 12px 32px;
+}
+.sidebar__brand .short { display: none; }
+
+.sidebar__nav { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  color: var(--text-primary);
+  transition: background 0.15s ease;
+}
+.nav-item:hover { background: #f2f2f2; }
+.nav-item.active { font-weight: 700; }
+.nav-item svg { width: 26px; height: 26px; flex-shrink: 0; }
+.nav-item .me-dot {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 2px solid var(--text-primary); flex-shrink: 0;
+}
+
+/* ===========================================================
+   MOBILE TOP BAR
+   =========================================================== */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--bg-surface);
+  z-index: 20;
+}
+.topbar__title { font-size: 1.2rem; font-weight: 700; }
+.topbar__brand { font-family: "Brush Script MT", "Segoe Script", cursive; font-size: 1.6rem; }
+.topbar__actions { display: flex; align-items: center; gap: 18px; }
+
+.icon-btn { display: inline-flex; align-items: center; justify-content: center; color: var(--text-primary); }
+.icon-btn svg { width: 24px; height: 24px; }
+
+.has-badge { position: relative; }
+.has-badge::after {
+  content: ""; position: absolute; top: -2px; right: -2px;
+  width: 8px; height: 8px; background: var(--danger); border-radius: 50%;
+}
+
+/* ===========================================================
+   MAIN CONTENT
+   =========================================================== */
+.main {
+  flex: 1 1 auto;
+  width: 100%;
+  padding-bottom: 64px; /* room for mobile bottom nav */
+}
+.container { width: 100%; max-width: 614px; margin: 0 auto; }
+.container--wide { max-width: 935px; }
+
+/* ===========================================================
+   STORIES (feed)
+   =========================================================== */
+.stories {
+  display: flex;
+  gap: 16px;
+  padding: 14px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-surface);
+}
+.story {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  flex-shrink: 0; font-size: 0.72rem; color: var(--text-primary);
+}
+.story .avatar { width: 58px; height: 58px; }
+.story span { max-width: 64px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ===========================================================
+   FEED POST
+   =========================================================== */
+.feed { display: flex; flex-direction: column; gap: 0; }
+
+.post { background: var(--bg-surface); border-bottom: 1px solid var(--border); }
+@media (min-width: 768px) {
+  .post { border: 1px solid var(--border); border-radius: var(--radius); margin-top: 16px; }
+}
+
+.post__head { display: flex; align-items: center; gap: 10px; padding: 10px 14px; }
+.post__head .avatar { width: 36px; height: 36px; }
+.post__head .meta { display: flex; flex-direction: column; line-height: 1.2; }
+.post__head .uname { font-weight: 600; font-size: 0.9rem; }
+.post__head .loc { font-size: 0.75rem; color: var(--text-secondary); }
+.post__head .more { margin-left: auto; }
+
+.post__media { width: 100%; aspect-ratio: 1 / 1; }
+
+.post__actions { display: flex; align-items: center; gap: 16px; padding: 12px 14px 6px; }
+.post__actions .save { margin-left: auto; }
+.post__actions svg { width: 26px; height: 26px; }
+
+.post__body { padding: 0 14px 14px; font-size: 0.88rem; }
+.post__body .likes { font-weight: 600; }
+.post__body .caption .uname { font-weight: 600; margin-right: 6px; }
+.post__body .comment {
+  display: flex; align-items: center; gap: 8px; margin-top: 8px; color: var(--text-secondary);
+}
+.post__body .comment .avatar { width: 22px; height: 22px; }
+
+/* ===========================================================
+   PROFILE SCREEN
+   =========================================================== */
+.profile-head {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 22px 16px 8px;
+}
+.profile-avatar-wrap { position: relative; flex-shrink: 0; }
+.profile-avatar { width: 84px; height: 84px; }
+.profile-avatar-wrap .add-badge {
+  position: absolute; right: 0; bottom: 0; width: 24px; height: 24px;
+  border-radius: 50%; background: var(--accent); color: #fff;
+  display: grid; place-items: center; border: 2px solid var(--bg-surface); font-size: 16px;
+}
+.profile-id { flex: 1; }
+.profile-id__top {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 12px;
+}
+.profile-id__top .uname { font-size: 1.3rem; font-weight: 400; }
+
+.profile-actions { display: flex; gap: 8px; }
+.btn {
+  padding: 7px 16px; border-radius: 8px; border: 1px solid var(--border);
+  background: #efefef; font-weight: 600; font-size: 0.88rem; color: var(--text-primary);
+}
+.btn--primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* stats */
+.profile-stats { display: flex; gap: 32px; }
+.profile-stats .stat .num { font-weight: 700; }
+.profile-stats .stat .label { color: var(--text-secondary); }
+
+.profile-bio { padding: 8px 16px 14px; font-size: 0.92rem; }
+.profile-bio .name { font-weight: 700; }
+.profile-bio .handle { color: var(--accent-deep); }
+.profile-bio p.desc { color: #333; margin-top: 2px; }
+
+/* highlights */
+.highlights { display: flex; gap: 22px; padding: 12px 16px 18px; overflow-x: auto; }
+.highlight {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  flex-shrink: 0; font-size: 0.75rem; color: var(--text-secondary);
+}
+.highlight .bubble { width: 64px; height: 64px; border-radius: 50%; }
+.highlight .bubble.add {
+  display: grid; place-items: center; background: #fafafa;
+  border: 1px solid var(--border); color: var(--text-primary); font-size: 26px;
+}
+
+/* tabs */
+.tabbar { display: flex; border-top: 1px solid var(--border); }
+.tabbar button {
+  flex: 1; display: grid; place-items: center; padding: 12px;
+  color: var(--text-secondary); border-top: 1px solid transparent; margin-top: -1px;
+}
+.tabbar button.active { color: var(--text-primary); border-top-color: var(--text-primary); }
+.tabbar svg { width: 24px; height: 24px; }
+
+/* ===========================================================
+   POSTS / EXPLORE GRIDS  (CSS Grid)
+   =========================================================== */
+.post-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
+.post-grid .tile { aspect-ratio: 1 / 1; }
+@media (min-width: 768px) { .post-grid { gap: 6px; } }
+
+.explore-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 1fr;
+  gap: 3px;
+}
+.explore-grid .tile { aspect-ratio: 1 / 1; }
+.explore-grid .tile.tall { grid-row: span 2; aspect-ratio: 1 / 2; }
+.explore-grid .tile.wide { grid-column: span 2; aspect-ratio: 2 / 1; }
+@media (min-width: 768px) {
+  .explore-grid { gap: 6px; grid-template-columns: repeat(3, 1fr); }
+}
+
+/* search + chips (explore) */
+.search {
+  display: flex; align-items: center; gap: 10px; margin: 14px;
+  padding: 10px 12px; background: #efefef; border-radius: var(--radius); color: var(--text-secondary);
+}
+.search svg { width: 18px; height: 18px; flex-shrink: 0; }
+.search input { border: none; background: none; outline: none; font-size: 0.9rem; width: 100%; color: var(--text-primary); }
+
+.chips { display: flex; gap: 8px; padding: 0 14px 14px; overflow-x: auto; }
+.chip {
+  flex-shrink: 0; padding: 7px 16px; border-radius: 999px; background: #f1f1f1;
+  border: 1px solid var(--border); font-size: 0.82rem; font-weight: 600; color: var(--text-primary);
+}
+.chip.active { background: var(--text-primary); color: #fff; border-color: var(--text-primary); }
+
+/* ===========================================================
+   MOBILE BOTTOM NAV
+   =========================================================== */
+.bottomnav {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 10px 8px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-surface);
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 20;
+}
+.bottomnav a { display: inline-flex; color: var(--text-primary); }
+.bottomnav a.active svg { stroke-width: 2.6; }
+.bottomnav svg { width: 26px; height: 26px; }
+.bottomnav .me { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--text-primary); }
+
+/* ===========================================================
+   RESPONSIVE BREAKPOINTS
+   =========================================================== */
+
+/* ---- Tablet & up: show icon sidebar, hide mobile chrome ---- */
+@media (min-width: 768px) {
+  .topbar, .bottomnav { display: none; }
+
+  .app { flex-direction: row; }
+
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: var(--sidebar-w-icon);
+    padding: 8px 12px 20px;
+    border-right: 1px solid var(--border);
+    background: var(--bg-surface);
+    z-index: 30;
+  }
+  .sidebar__brand .full { display: none; }
+  .sidebar__brand .short { display: block; }
+  .sidebar__brand { text-align: center; }
+  .nav-item { justify-content: center; }
+  .nav-item .label { display: none; }
+
+  .main { padding-bottom: 24px; padding-left: var(--sidebar-w-icon); }
+}
+
+/* ---- Desktop: labeled sidebar + breathing room ---- */
+@media (min-width: 1264px) {
+  .sidebar { width: var(--sidebar-w); padding: 8px 12px 20px; }
+  .sidebar__brand .full { display: block; }
+  .sidebar__brand .short { display: none; }
+  .sidebar__brand { text-align: left; }
+  .nav-item { justify-content: flex-start; }
+  .nav-item .label { display: inline; }
+
+  .main { padding-left: var(--sidebar-w); }
+
+  /* roomier profile header on desktop */
+  .profile-head { gap: 64px; padding: 40px 16px 12px; }
+  .profile-avatar { width: 150px; height: 150px; }
+}
